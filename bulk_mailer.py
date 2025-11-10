@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
+import smtplib
 import os
 import sys
-import smtplib
 import mimetypes
 from email.message import EmailMessage
 
-export SMTP_HOST="smtp.gmail.com"
-export SMTP_PORT="465"
-export SMTP_USE_SSL="1"
-export SMTP_USER="niranprempanakal@gmail.com"
-export SMTP_PASS="kqlp ibua ckrf dipj"
-
+# ---------------- CONFIG (Set your variables here directly) ----------------
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 465                # 465 for SSL, 587 for TLS
+SMTP_USE_SSL = True            # True = SSL (recommended)
+SMTP_USER = "niranprempanakal@gmail.com"
+SMTP_PASS = "kqlp ibua ckrf dipj"
 
 FROM_NAME = "Niran Prem"
 FROM_EMAIL = SMTP_USER
@@ -58,7 +58,7 @@ def send_mail(to_email, resume_path, smtp):
     attach_file(msg, resume_path)
     smtp.send_message(msg)
 
-# ---------------- MAIN SCRIPT ----------------
+# ---------------- MAIN ----------------
 def main():
     if len(sys.argv) < 3:
         print("Usage: ./bulk_mailer.py recipients.txt resume.pdf")
@@ -67,11 +67,6 @@ def main():
     recipients_file = sys.argv[1]
     resume_path = sys.argv[2]
 
-    if not SMTP_USER or not SMTP_PASS:
-        print("Please set SMTP_USER and SMTP_PASS environment variables.")
-        sys.exit(1)
-
-    # Read recipients
     with open(recipients_file, "r") as f:
         recipients = [line.strip() for line in f if line.strip()]
 
@@ -85,9 +80,8 @@ def main():
     success = []
     failed = []
 
-    # Connect to SMTP server
     try:
-        if USE_SSL:
+        if SMTP_USE_SSL:
             smtp = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT)
         else:
             smtp = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
@@ -109,7 +103,6 @@ def main():
 
     smtp.quit()
 
-    # Summary
     print("\n--- SUMMARY ---")
     print(f"✅ Sent successfully: {len(success)}")
     print(f"❌ Failed: {len(failed)}")
